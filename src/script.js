@@ -13,16 +13,43 @@ const canvas = document.querySelector('canvas.webgl')
 const scene = new THREE.Scene()
 
 // Objects
-const geometry = new THREE.TorusGeometry( .7, .2, 16, 100 );
+//const geometry = new THREE.TorusGeometry( .8, .3, 18, 100 );
+const geometry = new THREE.SphereGeometry(1, 60, 60, 1)
 
+const particlesGeometry = new THREE.BufferGeometry;
+const particlesCnt = 5000;
+const posArray = new Float32Array(particlesCnt * 3);
+
+for (let i = 0; i < particlesCnt * 3; i++) {
+    posArray[i] = (Math.random() -0.5) * 5;
+}
+
+// Texture Loader
+const loader = new THREE.TextureLoader()
+const pic = loader.load('./circ.png')
+
+particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3))
 // Materials
 
-const material = new THREE.MeshBasicMaterial()
-material.color = new THREE.Color(0xff0000)
+const material = new THREE.PointsMaterial({
+    size: 0.005
+})
+
+const particlesMaterial = new THREE.PointsMaterial({
+    size: 0.005,
+    map: pic,
+    transparent: true,
+    //color: 'blue'
+})
 
 // Mesh
-const sphere = new THREE.Mesh(geometry,material)
-scene.add(sphere)
+const sphere = new THREE.Points(geometry, material)
+const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial)
+//sphere.rotation.x = Math.PI / 2
+sphere.position.z = 0.5
+sphere.position.y = -0.01
+scene.add(sphere, particlesMesh)
+
 
 // Lights
 
@@ -77,6 +104,31 @@ const renderer = new THREE.WebGLRenderer({
 })
 renderer.setSize(sizes.width, sizes.height)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+renderer.setClearColor(new THREE.Color('#21282a'), 1)
+
+//mouse
+const animateParticles = (event) => {
+    mouseY = event.clientY
+    mouseX = event.clientX
+}
+
+document.addEventListener('mousemove', animateParticles)
+let mouseX = 0
+let mouseY = 0
+
+let mouseDown = false;
+//const sphereMat = new THREE.MeshNormalMaterial({ wireframe: true});
+
+const catchMouse = () => {
+    //sphere.material = sphereMat;
+    mouseDown = true;
+}
+const stopMouse = () => {
+    //sphere.material = THREE.PointsMaterial
+    mouseDown = false;
+}
+document.addEventListener("mousedown", catchMouse)
+document.addEventListener("mouseup", stopMouse)
 
 /**
  * Animate
@@ -90,8 +142,17 @@ const tick = () =>
     const elapsedTime = clock.getElapsedTime()
 
     // Update objects
-    sphere.rotation.y = .5 * elapsedTime
-
+    
+    
+    if(mouseDown){
+        sphere.rotation.y = mouseX * (elapsedTime * 0.00008)
+        sphere.rotation.x = mouseY * (elapsedTime * 0.00008)
+    } else {
+        sphere.rotation.y = .5 * elapsedTime
+    }
+    particlesMesh.rotation.y = mouseX * (elapsedTime * 0.00008)
+    particlesMesh.rotation.x = mouseY * (elapsedTime * 0.00008)
+    
     // Update Orbital Controls
     // controls.update()
 
