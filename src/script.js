@@ -22,7 +22,9 @@ const posArray = new Float32Array(particlesCnt * 3);
 
 for (let i = 0; i < particlesCnt * 3; i++) {
     posArray[i] = (Math.random() -0.5) * 5;
+    //console.log('particles!')
 }
+
 
 // Texture Loader
 const loader = new THREE.TextureLoader()
@@ -37,8 +39,8 @@ const material = new THREE.PointsMaterial({
 
 const particlesMaterial = new THREE.PointsMaterial({
     size: 0.005,
-    map: pic,
-    transparent: true,
+    //map: pic,
+    //transparent: true,
     //color: 'blue'
 })
 
